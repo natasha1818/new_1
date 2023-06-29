@@ -73,12 +73,11 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     fun likeById(id: Long,likedByMe:Boolean) {
         thread {
             val old = _data.value?.posts.orEmpty()
-            val post = repository.likeById(id,likedByMe)
-           edited.value = edited.value?.copy(
-              likes = if(post.likedByMe) post.likes - 1 else post.likes +1
-               )
+
             try {
-                repository.likeById(id, likedByMe)
+                val post2 = repository.likeById(id, likedByMe)
+                _data.postValue(_data.value?.copy(posts = old.map {post->
+                    if (post.id == id)post2 else post }))
             }catch (e:IOException){
                 _data.postValue(_data.value?.copy(posts = old))
             }
@@ -102,3 +101,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 }
+
+
+
+

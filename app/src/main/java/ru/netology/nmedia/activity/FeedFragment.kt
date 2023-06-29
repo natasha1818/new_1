@@ -2,6 +2,7 @@ package ru.netology.nmedia.activity
 
 import android.R.*
 import android.R.color.*
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -15,6 +16,7 @@ import ru.netology.nmedia.R
 import ru.netology.nmedia.adapter.OnInteractionListener
 import ru.netology.nmedia.adapter.PostsAdapter
 import ru.netology.nmedia.databinding.FragmentFeedBinding
+import ru.netology.nmedia.databinding.FragmentFeedBinding.inflate
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.viewmodel.PostViewModel
 
@@ -23,19 +25,23 @@ class FeedFragment : Fragment() {
 
     private val viewModel: PostViewModel by activityViewModels()
 
+    @SuppressLint("SuspiciousIndentation")
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val binding = FragmentFeedBinding.inflate(inflater, container, false)
+        val binding = inflate(inflater, container, false)
 
             binding.swiperefresh.setOnRefreshListener {
                 runnable = Runnable {
                     binding.swiperefresh.isRefreshing = false
+                    viewModel.loadPosts()
                 }
 
-                binding.swiperefresh.postDelayed(runnable,6000)}
+                binding.swiperefresh.postDelayed(runnable,6000)
+
+             }
 
         binding.swiperefresh.setColorSchemeResources(
             holo_blue_bright,holo_green_light,holo_orange_light,

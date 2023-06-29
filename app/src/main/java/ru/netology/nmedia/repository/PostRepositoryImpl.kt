@@ -1,6 +1,7 @@
 package ru.netology.nmedia.repository
 
 import android.annotation.SuppressLint
+import androidx.core.os.persistableBundleOf
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import okhttp3.MediaType.Companion.toMediaType
@@ -37,13 +38,12 @@ class PostRepositoryImpl: PostRepository {
             }
     }
 
-    override fun likeById (id: Long,likedByMe:Boolean)  {
-        if(likedByMe == true){
-            liked(id)
-        }else{
-            deleteLike(id)
-        }
-
+    override fun likeById (id: Long,likedByMe:Boolean) :Post{
+      val post =  when (likedByMe) {
+            true -> deleteLike(id)
+           else-> liked(id)
+       }
+     return post
     }
 
     override fun save(post: Post) {
@@ -67,33 +67,29 @@ class PostRepositoryImpl: PostRepository {
             .execute()
             .close()
     }
-    @SuppressLint("SuspiciousIndentation")
-    fun liked (id: Long) :Post{
 
+       fun liked (id: Long):Post{
         val request: Request = Request.Builder()
             .post(EMPTY_REQUEST)
-            .url("${BASE_URL}/api/slow/posts/$id")
+            .url("${BASE_URL}/api/slow/posts/$id/likes")
             .build()
            return client.newCall(request)
                .execute()
                .let { it.body?.string() ?: throw RuntimeException("body is null") }
                .let {
-                   gson.fromJson(it, typeToken.type)
+                   gson.fromJson(it, Post::class.java)
                }
-
-
     }
     fun deleteLike(id: Long):Post{
-
         val request: Request = Request.Builder()
             .delete()
-            .url("${BASE_URL}/api/slow/posts/$id")
+            .url("${BASE_URL}/api/slow/posts/$id/likes")
             .build()
         return client.newCall(request)
             .execute()
             .let { it.body?.string() ?: throw RuntimeException("body is null") }
             .let {
-                gson.fromJson(it, typeToken.type)
+                gson.fromJson(it, Post::class.java)
             }
            }
 }
