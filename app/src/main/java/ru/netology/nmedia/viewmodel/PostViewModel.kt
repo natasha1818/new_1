@@ -8,6 +8,7 @@ import ru.netology.nmedia.repository.*
 import ru.netology.nmedia.util.SingleLiveEvent
 import java.io.IOException
 import kotlin.concurrent.thread
+import ru.netology.nmedia.repository.PostRepository.RepositoryCallback as RepositoryCallback1
 
 private val empty = Post(
     id = 0,
@@ -34,29 +35,33 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun loadPosts() {
-        thread {
-            // Начинаем загрузку
+
             _data.postValue(FeedModel(loading = true))
-            try {
-                // Данные успешно получены
-                val posts = repository.getAll()
-                FeedModel(posts = posts, empty = posts.isEmpty())
-            } catch (e: IOException) {
-                // Получена ошибка
-                FeedModel(error = true)
-            }.also(_data::postValue)
-        }
+        repository.getAllAsync(object : RepositoryCallback1<List<Post>> {
+            override fun onSuccess(value: List<Post>) {
+                _data.postValue(FeedModel(posts = value, empty = value.isEmpty()))
+            }
+           override fun onError() {
+                _data.postValue(FeedModel(error = true))
+            }
+
+        })
+
     }
 
     fun save() {
         edited.value?.let {
-            thread {
-                repository.save(it)
-                _postCreated.postValue(Unit)
-            }
+
+                repository.saveAsync(object : RepositoryCallback1<Post> {
+                        override fun onSuccess(value: Post) {
+                            _postCreated.postValue(Unit)
+
+                        }
+                        override fun onError() {
+                            _data.postValue(FeedModel(error = true))
+                        }})
+                 }
         }
-        edited.value = empty
-    }
 
     fun edit(post: Post) {
         edited.value = post
@@ -70,36 +75,47 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         edited.value = edited.value?.copy(content = text)
     }
 
-    fun likeById(id: Long,likedByMe:Boolean) {
-        thread {
+    fun likeById(id: Long) {
+
             val old = _data.value?.posts.orEmpty()
 
-            try {
-                val post2 = repository.likeById(id, likedByMe)
-                _data.postValue(_data.value?.copy(posts = old.map {post->
-                    if (post.id == id)post2 else post }))
-            }catch (e:IOException){
-                _data.postValue(_data.value?.copy(posts = old))
-            }
-        }
-    }
+
+                val post2 = repository.likeByIbAsync(id, object : RepositoryCallback1<Post>{
+                    override fun onSuccess(value: Post) {
+                        _data.postValue(_data.value?.copy(posts = old.map {post->
+                            if (post.id == id) post2 else post }))
+                    }
+
+                    override fun onError() {
+                        _data.postValue(_data.value?.copy(posts = old))
+                    }})
+                    }
+
+
 
     fun removeById(id: Long) {
-        thread {
+
             // Оптимистичная модель
             val old = _data.value?.posts.orEmpty()
-            _data.postValue(
-                _data.value?.copy(posts = _data.value?.posts.orEmpty()
-                    .filter { it.id != id }
-                )
-            )
-            try {
-                repository.removeById(id)
-            } catch (e: IOException) {
-                _data.postValue(_data.value?.copy(posts = old))
-            }
+
+
+                repository.removeByIdAsync(id,object : RepositoryCallback1<Post>{
+                    override fun onSuccess(value: Post) {
+                        _data.postValue(
+                            _data.value?.copy(posts = _data.value?.posts.orEmpty()
+                                .filter { it.id != id }
+                            )
+                        )
+                    }
+
+                    override fun onError() {
+                        _data.postValue(_data.value?.copy(posts = old))
+                    }
+
+                })
+
         }
-    }
+
 }
 
 

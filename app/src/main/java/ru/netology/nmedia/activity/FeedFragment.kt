@@ -36,9 +36,9 @@ class FeedFragment : Fragment() {
             binding.swiperefresh.setOnRefreshListener {
                 runnable = Runnable {
                     binding.swiperefresh.isRefreshing = false
-                    viewModel.loadPosts()
-                }
 
+                }
+                viewModel.loadPosts()
                 binding.swiperefresh.postDelayed(runnable,6000)
 
              }
