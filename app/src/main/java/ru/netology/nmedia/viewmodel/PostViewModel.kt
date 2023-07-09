@@ -6,8 +6,6 @@ import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.model.FeedModel
 import ru.netology.nmedia.repository.*
 import ru.netology.nmedia.util.SingleLiveEvent
-import java.io.IOException
-import kotlin.concurrent.thread
 import ru.netology.nmedia.repository.PostRepository.RepositoryCallback as RepositoryCallback1
 
 private val empty = Post(
@@ -36,12 +34,13 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
 
     fun loadPosts() {
 
-            _data.postValue(FeedModel(loading = true))
+        _data.postValue(FeedModel(loading = true))
         repository.getAllAsync(object : RepositoryCallback1<List<Post>> {
             override fun onSuccess(value: List<Post>) {
                 _data.postValue(FeedModel(posts = value, empty = value.isEmpty()))
             }
-           override fun onError() {
+
+            override fun onError() {
                 _data.postValue(FeedModel(error = true))
             }
 
@@ -52,16 +51,17 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     fun save() {
         edited.value?.let {
 
-                repository.saveAsync(object : RepositoryCallback1<Post> {
-                        override fun onSuccess(value: Post) {
-                            _postCreated.postValue(Unit)
+            repository.saveAsync(object : RepositoryCallback1<Post> {
+                override fun onSuccess(value: Post) {
+                    _postCreated.postValue(Unit)
+                }
 
-                        }
-                        override fun onError() {
-                            _data.postValue(FeedModel(error = true))
-                        }})
-                 }
+                override fun onError() {
+                    _data.postValue(FeedModel(error = true))
+                }
+            })
         }
+    }
 
     fun edit(post: Post) {
         edited.value = post
@@ -76,46 +76,38 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun likeById(id: Long) {
-
-            val old = _data.value?.posts.orEmpty()
-
-
-                val post2 = repository.likeByIbAsync(id, object : RepositoryCallback1<Post>{
-                    override fun onSuccess(value: Post) {
-                        _data.postValue(_data.value?.copy(posts = old.map {post->
-                            if (post.id == id) post2 else post }))
-                    }
-
-                    override fun onError() {
-                        _data.postValue(_data.value?.copy(posts = old))
-                    }})
-                    }
-
+        val old = _data.value?.posts.orEmpty()
+        var post2 = repository.likeByIbAsync(id, likedByMe, object : RepositoryCallback1<Post> {
+            override fun onSuccess(value: Post) {
+                _data.postValue(_data.value?.copy(posts = old.map { post ->
+                    if (post.id == id) post2 else post
+                }))
+            }
+            override fun onError() {
+                _data.postValue(_data.value?.copy(posts = old))
+           }
+        })
+    }
 
 
     fun removeById(id: Long) {
 
-            // Оптимистичная модель
-            val old = _data.value?.posts.orEmpty()
+        // Оптимистичная модель
+        val old = _data.value?.posts.orEmpty()
+        repository.removeByIdAsync(id, object : RepositoryCallback1<Unit> {
+            override fun onSuccess(value: Unit) {
+                _data.postValue(
+                    _data.value?.copy(posts = _data.value?.posts.orEmpty()
+                        .filter { it.id != id }
+                    )
+                )
+            }
 
-
-                repository.removeByIdAsync(id,object : RepositoryCallback1<Post>{
-                    override fun onSuccess(value: Post) {
-                        _data.postValue(
-                            _data.value?.copy(posts = _data.value?.posts.orEmpty()
-                                .filter { it.id != id }
-                            )
-                        )
-                    }
-
-                    override fun onError() {
-                        _data.postValue(_data.value?.copy(posts = old))
-                    }
-
-                })
-
-        }
-
+            override fun onError() {
+                _data.postValue(_data.value?.copy(posts = old))
+            }
+        })
+    }
 }
 
 
