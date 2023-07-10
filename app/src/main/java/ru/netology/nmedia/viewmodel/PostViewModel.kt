@@ -2,6 +2,7 @@ package ru.netology.nmedia.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.*
+import ru.netology.nmedia.activity.FeedFragment
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.model.FeedModel
 import ru.netology.nmedia.repository.*
@@ -75,9 +76,10 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         edited.value = edited.value?.copy(content = text)
     }
 
-    fun likeById(id: Long) {
+    fun likeById(id: Long,likedByMe: Boolean) {
         val old = _data.value?.posts.orEmpty()
-        var post2 = repository.likeByIbAsync(id, likedByMe, object : RepositoryCallback1<Post> {
+
+        var post2 = repository.likeByIbAsync(id,likedByMe, object : RepositoryCallback1<Post> {
             override fun onSuccess(value: Post) {
                 _data.postValue(_data.value?.copy(posts = old.map { post ->
                     if (post.id == id) post2 else post

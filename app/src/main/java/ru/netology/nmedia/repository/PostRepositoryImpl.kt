@@ -111,31 +111,50 @@ class PostRepositoryImpl : PostRepository {
     }
 
 
-
     @SuppressLint("SuspiciousIndentation")
-    fun liked(id: Long): Post {
+    fun liked(id: Long, callback: RepositoryCallback<Post>): Post {
         val request: Request = Request.Builder()
             .post(EMPTY_REQUEST)
             .url("${BASE_URL}/api/slow/posts/$id/likes")
             .build()
         return client.newCall(request)
-            .execute()
-            .let { it.body?.string() ?: throw RuntimeException("body is null") }
-            .let {
-                gson.fromJson(it, Post::class.java)
-            }
+            .enqueue(object : Callback {
+                override fun onFailure(call: Call, e: IOException) {
+                    callback.onError()
+                }
+
+                override fun onResponse(call: Call, response: Response) {
+                    if (!response.isSuccessful) {
+                        callback.onError()
+                    } else {
+                        val body = response.body?.string() ?: throw RuntimeException("body is null")
+                        callback.onSuccess(gson.fromJson(body, Post::class.java)
+                    }
+                }
+
+            })
+
     }
 
-    fun deleteLike(id: Long): Post {
+    fun deleteLike(id: Long,callback: RepositoryCallback<Post>):Post {
         val request: Request = Request.Builder()
             .delete()
             .url("${BASE_URL}/api/slow/posts/$id/likes")
             .build()
         return client.newCall(request)
-            .execute()
-            .let { it.body?.string() ?: throw RuntimeException("body is null") }
-            .let {
-                gson.fromJson(it, Post::class.java)
-            }
-    }
+            .enqueue(object : Callback {
+                override fun onFailure(call: Call, e: IOException) {
+                    callback.onError()
+                }
+
+                override fun onResponse(call: Call, response: Response) {
+                    if (!response.isSuccessful) {
+                        callback.onError()
+                    } else {
+                        val body = response.body?.string() ?: throw RuntimeException("body is null")
+                        callback.onSuccess(gson.fromJson(body, Post::class.java)
+                    }
+                }
+
+            })
 }
