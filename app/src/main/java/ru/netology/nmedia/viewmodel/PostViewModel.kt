@@ -48,7 +48,6 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         })
 
     }
-
     fun save() {
         edited.value?.let {
 
@@ -62,6 +61,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
                 }
             })
         }
+        edited.value = empty
     }
 
     fun edit(post: Post) {
@@ -79,10 +79,10 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     fun likeById(id: Long,likedByMe: Boolean) {
         val old = _data.value?.posts.orEmpty()
 
-        var post2 = repository.likeByIbAsync(id,likedByMe, object : RepositoryCallback1<Post> {
+        repository.likeByIbAsync(id,likedByMe, object : RepositoryCallback1<Post> {
             override fun onSuccess(value: Post) {
                 _data.postValue(_data.value?.copy(posts = old.map { post ->
-                    if (post.id == id) post2 else post
+                    if (post.id == id) value else post
                 }))
             }
             override fun onError() {

@@ -13,7 +13,6 @@ import java.io.IOException
 
 import java.util.concurrent.TimeUnit
 
-
 class PostRepositoryImpl : PostRepository {
     private val client = OkHttpClient.Builder()
         .connectTimeout(30, TimeUnit.SECONDS)
@@ -102,17 +101,17 @@ class PostRepositoryImpl : PostRepository {
         id: Long,
         likedByMe: Boolean,
         callback: RepositoryCallback<Post>
-    ): Post {
-        val post = when (likedByMe) {
-            true -> deleteLike(id)
-            else -> liked(id)
+    ) {
+        when (likedByMe) {
+            true -> deleteLike(id, callback)
+            else -> liked(id, callback)
         }
-        return post
+
     }
 
 
     @SuppressLint("SuspiciousIndentation")
-    fun liked(id: Long, callback: RepositoryCallback<Post>): Post {
+    fun liked(id: Long, callback: RepositoryCallback<Post>) {
         val request: Request = Request.Builder()
             .post(EMPTY_REQUEST)
             .url("${BASE_URL}/api/slow/posts/$id/likes")
@@ -123,20 +122,18 @@ class PostRepositoryImpl : PostRepository {
                     callback.onError()
                 }
 
-                override fun onResponse(call: Call, response: Response) {
+                override fun onResponse(call: Call, response: Response) =
                     if (!response.isSuccessful) {
                         callback.onError()
                     } else {
                         val body = response.body?.string() ?: throw RuntimeException("body is null")
-                        callback.onSuccess(gson.fromJson(body, Post::class.java)
+                        callback.onSuccess(gson.fromJson(body, Post::class.java))
                     }
-                }
-
             })
 
     }
 
-    fun deleteLike(id: Long,callback: RepositoryCallback<Post>):Post {
+    fun deleteLike(id: Long, callback: RepositoryCallback<Post>) {
         val request: Request = Request.Builder()
             .delete()
             .url("${BASE_URL}/api/slow/posts/$id/likes")
@@ -152,9 +149,9 @@ class PostRepositoryImpl : PostRepository {
                         callback.onError()
                     } else {
                         val body = response.body?.string() ?: throw RuntimeException("body is null")
-                        callback.onSuccess(gson.fromJson(body, Post::class.java)
+                        callback.onSuccess(gson.fromJson(body, Post::class.java))
                     }
                 }
-
             })
+    }
 }
