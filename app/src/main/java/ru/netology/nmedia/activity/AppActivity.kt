@@ -17,17 +17,9 @@ import ru.netology.nmedia.activity.NewPostFragment.Companion.textArg
 
 class AppActivity : AppCompatActivity(R.layout.activity_app)
 {
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         requestNotificationsPermission()
-
-
-
-
-
-
         intent?.let {
             if (it.action != Intent.ACTION_SEND) {
                 return@let

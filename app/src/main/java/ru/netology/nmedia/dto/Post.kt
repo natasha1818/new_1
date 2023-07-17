@@ -9,4 +9,10 @@ data class Post(
     val likes: Int = 0,
     val authorAvatar: String? = null,
 )
+ object Attachment {
+    val url: String? = null
+    val description: String? = null
+    val type: String? = null
+}
+
 

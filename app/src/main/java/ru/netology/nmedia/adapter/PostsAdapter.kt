@@ -1,11 +1,13 @@
 package ru.netology.nmedia.adapter
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupMenu
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import ru.netology.nmedia.R
 import ru.netology.nmedia.databinding.CardPostBinding
 import ru.netology.nmedia.dto.Post
@@ -35,6 +37,10 @@ class PostViewHolder(
     private val binding: CardPostBinding,
     private val onInteractionListener: OnInteractionListener,
 ) : RecyclerView.ViewHolder(binding.root) {
+    private val urls = listOf("netology.jpg","sber.jpg","tcs.jpg")
+    private val urlAttachment = listOf("sbercard.jpg", "podcast.jpg")
+
+
 
     fun bind(post: Post) {
         binding.apply {
@@ -44,6 +50,32 @@ class PostViewHolder(
             // в адаптере
             like.isChecked = post.likedByMe
             like.text = "${post.likes}"
+
+
+            val url= "http://10.0.2.2:9999/avatars/${urls.filter{it == post.authorAvatar}.get(0)}"
+            Glide.with(avatar)
+                .load(url)
+               .placeholder(R.drawable.baseline_miscellaneous_services_24)
+                .error(R.drawable.baseline_cancel_24)
+                .optionalCircleCrop()
+                .timeout(10_000)
+                .into(binding.avatar)
+
+            val nameAttachmrnt = urlAttachment.filter{it == post.attachment.url}
+            val url2= "http://10.0.2.2:9999/avatars/${nameAttachmrnt.get(0)}"
+
+            if (post.attachment != null){
+                attachment.visibility = View.VISIBLE
+            Glide.with(attachment)
+                .load(url2)
+                .placeholder(R.drawable.baseline_miscellaneous_services_24)
+                .error(R.drawable.baseline_cancel_24)
+                .timeout(10_000)
+                .into(binding.attachment)}
+            else{
+                    attachment.visibility = View.GONE
+            }
+
 
             menu.setOnClickListener {
                 PopupMenu(it.context, it).apply {
@@ -75,6 +107,8 @@ class PostViewHolder(
         }
     }
 }
+
+
 
 class PostDiffCallback : DiffUtil.ItemCallback<Post>() {
     override fun areItemsTheSame(oldItem: Post, newItem: Post): Boolean {
