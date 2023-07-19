@@ -52,7 +52,7 @@ class PostViewHolder(
             like.text = "${post.likes}"
 
 
-            val url= "http://10.0.2.2:9999/avatars/${urls.filter{it == post.authorAvatar}.get(0)}"
+            val url= "http://10.0.2.2:9999/avatars/${post.authorAvatar}"
             Glide.with(avatar)
                 .load(url)
                .placeholder(R.drawable.baseline_miscellaneous_services_24)
@@ -61,8 +61,8 @@ class PostViewHolder(
                 .timeout(10_000)
                 .into(binding.avatar)
 
-            val nameAttachmrnt = urlAttachment.filter{it == post.attachment.url}
-            val url2= "http://10.0.2.2:9999/avatars/${nameAttachmrnt.get(0)}"
+
+            val url2= "http://10.0.2.2:9999/images/${post.attachment?.url}"
 
             if (post.attachment != null){
                 attachment.visibility = View.VISIBLE

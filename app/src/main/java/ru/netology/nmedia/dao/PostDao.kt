@@ -4,6 +4,8 @@ import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.TypeConverter
+import ru.netology.nmedia.entity.AttachmentType
 import ru.netology.nmedia.entity.PostEntity
 
 @Dao
@@ -33,4 +35,10 @@ interface PostDao {
 
     @Query("DELETE FROM PostEntity WHERE id = :id")
     fun removeById(id: Long)
+}
+class Converters {
+    @TypeConverter
+    fun attachmentToString(value: AttachmentType) = value.name
+    @TypeConverter
+    fun stringToAttachment(value:String) = enumValueOf<AttachmentType>(value)
 }
