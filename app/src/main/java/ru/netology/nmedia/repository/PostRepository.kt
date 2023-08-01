@@ -9,7 +9,7 @@ interface PostRepository {
     fun likeByIbAsync(id: Long, likedByMe: Boolean, callback: RepositoryCallback<Post>)
     interface RepositoryCallback<T> {
         fun onSuccess(value: T)
-        fun onError()
+        fun onError(e:Exception)
     }
 }
 

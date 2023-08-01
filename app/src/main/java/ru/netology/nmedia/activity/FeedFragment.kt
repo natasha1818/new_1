@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -34,6 +35,8 @@ class FeedFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         val binding = inflate(inflater, container, false)
+        viewModel.postCreatedError.observe(viewLifecycleOwner){
+            Toast.makeText(requireContext(),"Ошибка на серевере, поробуйте еще раз нажать", Toast.LENGTH_LONG).show()}
 
             binding.swiperefresh.setOnRefreshListener {
                 runnable = Runnable {
@@ -41,7 +44,7 @@ class FeedFragment : Fragment() {
 
                 }
                 viewModel.loadPosts()
-                binding.swiperefresh.postDelayed(runnable,6000)
+                binding.swiperefresh.postDelayed(runnable,2000)
 
              }
 
@@ -49,6 +52,7 @@ class FeedFragment : Fragment() {
             holo_blue_bright,holo_green_light,holo_orange_light,
             holo_red_light
         )
+
 
 
         val adapter = PostsAdapter(object : OnInteractionListener {
@@ -97,8 +101,8 @@ class FeedFragment : Fragment() {
 
 
         return binding.root
-    }
+    }}
 
-}
+
 
 
