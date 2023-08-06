@@ -1,7 +1,6 @@
 package ru.netology.nmedia.viewmodel
 
 import android.app.Application
-import android.widget.Toast
 import androidx.lifecycle.*
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.model.FeedModel
@@ -29,9 +28,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     private val _postCreated = SingleLiveEvent<Unit>()
     val postCreated: LiveData<Unit>
         get() = _postCreated
-    private val _postCreatedError = SingleLiveEvent<Unit>()
-    val postCreatedError: LiveData<Unit>
-        get() = _postCreatedError
+
 
     init {
         loadPosts()
@@ -46,8 +43,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
             }
 
             override fun onError(e: Exception) {
-                _data.value = FeedModel(error = true)
-            }
+                _data.value = FeedModel(error = true)          }
 
         })
 
@@ -60,7 +56,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
                 }
 
                 override fun onError(e: Exception) {
-                    FeedModel(error = true)
+                    _data.value = FeedModel(error = true)
                 }
             })
 
@@ -89,7 +85,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
                 })
             }
             override fun onError(e: Exception) {
-                _data.value = _data.value?.copy(posts = old)
+                _data.value = _data.value?.copy(posts = old,error = true)
 
             }
         })
@@ -110,7 +106,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
 
             }
             override fun onError(e: Exception) {
-                _data.value = _data.value?.copy(posts = old)
+                _data.value = _data.value?.copy(posts = old,error = true)
             }
         })
     }

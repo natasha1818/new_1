@@ -35,8 +35,11 @@ class FeedFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         val binding = inflate(inflater, container, false)
-        viewModel.postCreatedError.observe(viewLifecycleOwner){
-            Toast.makeText(requireContext(),"Ошибка на серевере, поробуйте еще раз нажать", Toast.LENGTH_LONG).show()}
+        viewModel.data.observe(viewLifecycleOwner){
+            if (it.error==false){
+                return@observe
+            }else{
+            Toast.makeText(requireContext(),"Ошибка на серевере, поробуйте еще раз нажать", Toast.LENGTH_LONG).show()}}
 
             binding.swiperefresh.setOnRefreshListener {
                 runnable = Runnable {

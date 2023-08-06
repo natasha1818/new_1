@@ -11,27 +11,27 @@ import ru.netology.nmedia.repository.PostRepository.*
 
 
 class PostRepositoryImpl : PostRepository {
-    fun getAll():List<Post>{
-        return ApiService.api.getPosts()
-            .execute()
-            .let{
-                if(!it.isSuccessful){
-                 error("Response code is ${it.code()}")
-                }
-                it.body()?: throw RuntimeException("body is null")
-            }
-    }
+//    fun getAll():List<Post>{
+//        return ApiService.api.getPosts()
+//            .execute()
+//            .let{
+//                if(!it.isSuccessful){
+//                 error("Response code is ${it.code()}")
+//                }
+//                it.body()?: throw RuntimeException("body is null")
+//            }
+//    }
     override fun getAllAsync(callback: RepositoryCallback<List<Post>>) {
     ApiService.api.getPosts()
              .enqueue(object : Callback <List<Post>>{
                  override fun onResponse(call: Call<List<Post>>, response: Response<List<Post>>) {
                      if(!response.isSuccessful){
-                         callback.onError(RuntimeException(response.errorBody()?.string()))
+                         callback.onError(RuntimeException())
                          return
                      }
                      val posts = response.body()
                      if (posts == null){
-                         callback.onError(RuntimeException("No posts"))
+                         callback.onError(RuntimeException())
                          return
 
                      }
@@ -53,7 +53,7 @@ class PostRepositoryImpl : PostRepository {
                     }
                     val post = response.body()
                     if (post == null) {
-                        callback.onError(RuntimeException("No posts"))
+                        callback.onError(RuntimeException())
                         return
                     }
                     callback.onSuccess(post)
@@ -76,7 +76,7 @@ class PostRepositoryImpl : PostRepository {
                         callback.onSuccess(Unit)
                 }
                 override fun onFailure(call: Call<Unit>, t: Throwable) {
-                    callback.onError(RuntimeException("failed to delete post"))
+                    callback.onError(RuntimeException())
 
                 }
             })
@@ -107,7 +107,7 @@ class PostRepositoryImpl : PostRepository {
                     }
                 }
                 override fun onFailure(call: Call<Post>, t: Throwable) {
-                    callback.onError(RuntimeException("failed to like"))
+                    callback.onError(RuntimeException())
                 }
             })
 
@@ -125,7 +125,7 @@ class PostRepositoryImpl : PostRepository {
                  }}
 
                  override fun onFailure(call: Call<Post>, t: Throwable) {
-                     callback.onError(RuntimeException("not delete like"))
+                     callback.onError(RuntimeException())
                  }
 
 
